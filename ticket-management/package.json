@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run startBackend",
-    "startBackend": "node app.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "TrianVuong",
@@ -14,6 +13,8 @@
     "bcrypt": "^5.1.0",
     "dotenv": "^16.2.0",
     "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.9.0",
     "jsonwebtoken": "^9.0.0",
     "mongodb": "^5.6.0",
     "mongoose": "^7.3.0"
