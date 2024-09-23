@@ -30,7 +30,21 @@ const _initResponse = function () {
 const _getForbiddenErrorResponse = function () {
   return {
     status: parseInt(process.env.HTTP_FORBIDDEN_ERROR_STATUS_CODE),
+    message: process.env.INVALID_OR_EXPIRED_TOKEN,
+  };
+};
+
+const _getUnauthoriedErrorResponse = function () {
+  return {
+    status: parseInt(process.env.HTTP_UNAUTHORIZED_ERROR_STATUS_CODE),
     message: process.env.ERROR_NOT_TOKEN_PROVIDED,
+  };
+};
+
+const _getAccessDeniedResponse = function () {
+  return {
+    status: parseInt(process.env.HTTP_FORBIDDEN_ERROR_STATUS_CODE),
+    message: process.env.ACCESS_DENIED,
   };
 };
 
@@ -53,18 +67,6 @@ const _checkExistedData = function (data, response, message) {
   });
 };
 
-// const _checkExistedActor = function (data, actorId, response, message) {
-//   const actor = data.actors.id(actorId);
-//   return new Promise((resolve, reject) => {
-//     if (actor) {
-//       resolve(data);
-//     } else {
-//       response.status = parseInt(process.env.HTTP_NOT_FOUND_STATUS_CODE);
-//       reject(message);
-//     }
-//   });
-// };
-
 const _sendReponse = function (res, response) {
   res.status(response.status).json(response.message);
 };
@@ -72,31 +74,6 @@ const _sendReponse = function (res, response) {
 const _sendReponseWithStatusAndMessage = function (res, status, message) {
   res.status(status).json(message);
 };
-
-// const _checkPasswordUser = function (dbUser, password) {
-//   return new Promise((resolve, reject) => {
-//     bcrypt
-//       .compare(password, dbUser.password)
-//       .then((salt) => _checkSaltPasswordMatching(salt, dbUser))
-//       .then((verifiedUser) => resolve(verifiedUser))
-//       .catch((err) => reject(err));
-//   });
-// };
-
-// const _getTokenSuccessResponse = function (token, response) {
-//   response.status = parseInt(process.env.HTTP_SUCCESS_STATUS_CODE);
-//   response.message = { [process.env.TOKEN]: token };
-// };
-
-// const _checkSaltPasswordMatching = function (salt, dbUser) {
-//   return new Promise((resolve, reject) => {
-//     if (salt) {
-//       resolve(dbUser);
-//     } else {
-//       reject(process.env.ERROR_PASSWORD_NOT_MATCHED);
-//     }
-//   });
-// };
 
 module.exports = {
   _initResponse,
@@ -108,8 +85,7 @@ module.exports = {
   _checkExistedData,
   _sendReponse,
   _sendReponseWithStatusAndMessage,
-  // _checkPasswordUser,
-  // _getTokenSuccessResponse,
   _getForbiddenErrorResponse,
-  // _checkExistedActor,
+  _getUnauthoriedErrorResponse,
+  _getAccessDeniedResponse,
 };

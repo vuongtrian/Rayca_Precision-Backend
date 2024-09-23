@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
 const callbackify = require("util").callbackify;
-// require('./movie-model');
-// require("./users-model");
 require("./ticket-model");
 
 const mongooseDisconnectedCallbackify = callbackify(function () {

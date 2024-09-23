@@ -17,11 +17,6 @@ redisClient.on("connect", () => {
   console.log("Successfully connected to Redis");
 });
 
-// // Optional: Log when ready (fully initialized)
-// client.on("ready", () => {
-//   console.log("Redis client is ready to use");
-// });
-
 // CREATE / UPDATE: Set data with expiration time
 const setCache = (key, value) => {
   return new Promise((resolve, reject) => {
@@ -52,7 +47,6 @@ const deleteCache = (key) => {
   });
 };
 
-// Export the utility functions
 module.exports = {
   setCache,
   getCache,

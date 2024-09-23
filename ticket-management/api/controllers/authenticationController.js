@@ -1,23 +1,66 @@
 const jwt = require("jsonwebtoken");
-const util = require("util");
+const { ac } = require("../acl/access-control");
 const responseUtil = require("../util/responseUtil");
 
-const authenticate = function (req, res, next) {
-  const response = responseUtil._getForbiddenErrorResponse();
+const authenticationController = {
+  verifyToken: (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+      const token = authHeader.split(" ")[1];
+      jwt.verify(token, process.env.SECRET_KEY_JWT, (err, user) => {
+        if (err) {
+          // Invalid or expired token
+          const forbiddenResponse = responseUtil._getForbiddenErrorResponse();
+          return responseUtil._sendReponseWithStatusAndMessage(
+            res,
+            forbiddenResponse.status,
+            forbiddenResponse.message
+          ); // Invalid or expired token
+        }
+        console.log(user);
+        req.user = user; // Attach the decoded token to the request object
+        next();
+      });
+    } else {
+      // No token provided
+      const unauthorizedResponse = responseUtil._getUnauthoriedErrorResponse();
+      return responseUtil._sendReponseWithStatusAndMessage(
+        res,
+        unauthorizedResponse.status,
+        unauthorizedResponse.message
+      );
+    }
+  },
 
-  const headerExists = req.headers.authorization;
-  if (headerExists) {
-    const token = req.headers.authorization.split(process.env.SPACE)[1];
-    const verify = util.promisify(jwt.verify);
+  // Middleware to authorize based on the user's roles
+  authorize: (action, resource) => {
+    return (req, res, next) => {
+      const roles = req.user.roles; // Extract roles from the JWT token
 
-    verify(token, process.env.SECRET_KEY_JWT)
-      .then(() => next())
-      .catch((err) => responseUtil._getErrorResponse(err, response));
-  } else {
-    responseUtil._sendReponse(res, response);
-  }
+      let permissionGranted = false;
+
+      // Check if any of the user's roles have permission for the requested action
+      for (const role of roles) {
+        const permission = ac.can(role)[action](resource);
+        if (permission.granted) {
+          permissionGranted = true;
+          break; // Stop checking if one role grants permission
+        }
+      }
+
+      if (permissionGranted) {
+        next(); // Allow access if any role grants permission
+      } else {
+        // No permission and deny access
+        const forbiddenResponse = responseUtil._getAccessDeniedResponse();
+        return responseUtil._sendReponseWithStatusAndMessage(
+          res,
+          forbiddenResponse.status,
+          forbiddenResponse.message
+        );
+      }
+    };
+  },
 };
 
-module.exports = {
-  authenticate,
-};
+module.exports = authenticationController;
