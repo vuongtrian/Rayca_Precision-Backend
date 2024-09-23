@@ -17,6 +17,7 @@ const TicketType = new GraphQLObjectType({
     status: { type: GraphQLString },
     priority: { type: GraphQLString },
     assignedTo: { type: GraphQLID },
+    tags: { type: new GraphQLList(GraphQLString) },
     createdAt: { type: GraphQLString },
     updatedAt: { type: GraphQLString },
   }),
@@ -73,6 +74,15 @@ const Mutation = new GraphQLObjectType({
           { title: args.title, status: args.status },
           { new: true }
         );
+      },
+    },
+    deleteTicket: {
+      type: TicketType,
+      args: {
+        id: { type: GraphQLID },
+      },
+      resolve(parent, args) {
+        return Ticket.findByIdAndDelete(args.id);
       },
     },
   },
