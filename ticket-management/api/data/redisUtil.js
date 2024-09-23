@@ -2,8 +2,8 @@ const redis = require("redis");
 
 // Initialize Redis client
 const redisClient = redis.createClient({
-  host: "localhost", // Redis server URL or IP address
-  port: 6379, // Redis server port (default is 6379)
+  host: "localhost",
+  port: 6379,
 });
 redisClient.connect();
 
@@ -13,9 +13,9 @@ redisClient.on("error", (err) => {
 });
 
 // // Log successful connection
-// client.on("connect", () => {
-//   console.log("Successfully connected to Redis");
-// });
+redisClient.on("connect", () => {
+  console.log("Successfully connected to Redis");
+});
 
 // // Optional: Log when ready (fully initialized)
 // client.on("ready", () => {
@@ -23,55 +23,31 @@ redisClient.on("error", (err) => {
 // });
 
 // CREATE / UPDATE: Set data with expiration time
-const setCache = (key, value, expiry = 3600) => {
+const setCache = (key, value) => {
   return new Promise((resolve, reject) => {
-    redisClient.setex(key, expiry, JSON.stringify(value), (err, reply) => {
+    redisClient.set(key, JSON.stringify(value), (err, reply) => {
       if (err) {
-        reject(err);
-      } else {
-        resolve(reply);
+        return reject(err);
       }
+      resolve(reply);
     });
   });
 };
 
 // READ: Get data from cache
 const getCache = (key) => {
-  return new Promise((resolve, reject) => {
-    redisClient.get(key, (err, data) => {
-      if (err) {
-        reject(err);
-      } else if (data) {
-        resolve(JSON.parse(data)); // Parse the cached data
-      } else {
-        resolve(null); // No data found in cache
-      }
-    });
-  });
+  return redisClient.get(key);
 };
 
 // DELETE: Remove data from cache
 const deleteCache = (key) => {
+  console.log("Deleting cache");
   return new Promise((resolve, reject) => {
     redisClient.del(key, (err, reply) => {
       if (err) {
-        reject(err);
-      } else {
-        resolve(reply); // Returns number of deleted keys
+        return reject(err);
       }
-    });
-  });
-};
-
-// CLEAR: Clear all cache (optional, for testing or bulk operations)
-const clearCache = () => {
-  return new Promise((resolve, reject) => {
-    redisClient.flushall((err, reply) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(reply); // Returns OK
-      }
+      resolve(reply);
     });
   });
 };
@@ -81,5 +57,4 @@ module.exports = {
   setCache,
   getCache,
   deleteCache,
-  clearCache,
 };

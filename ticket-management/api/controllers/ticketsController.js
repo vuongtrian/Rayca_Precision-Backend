@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const callbackify = require("util").callbackify;
 const responseUtil = require("../util/responseUtil");
-
+const redisUtil = require("../data/redisUtil");
 const Ticket = mongoose.model(process.env.TICKET_MODEL);
 
 const getAll = function (req, res) {
@@ -42,12 +42,42 @@ const getAll = function (req, res) {
     return;
   }
   let response = responseUtil._initResponse();
-  Ticket.find(query)
-    .skip(offset)
-    .limit(count)
-    .exec()
-    .then((tickets) => responseUtil._getSuccessResponse(tickets, response))
-    .catch((err) => responseUtil._getErrorResponse(err, response))
+
+  // redisUtil
+  //   .getCache(req.body.cacheKey)
+  //   .then((cacheValue) =>
+  //     responseUtil._getSuccessResponse(cacheValue, response)
+  //   )
+  //   .catch((error) => responseUtil._getErrorResponse(error, response))
+  //   .finally(() => responseUtil._sendReponse(res, response));
+  // Ticket.find(query)
+  //   .skip(offset)
+  //   .limit(count)
+  //   .exec()
+  //   .then((tickets) => responseUtil._getSuccessResponse(tickets, response))
+  //   .catch((err) => responseUtil._getErrorResponse(err, response))
+  //   .finally(() => responseUtil._sendReponse(res, response));
+
+  redisUtil
+    .getCache(req.body.cacheKey)
+    .then((cacheValue) => {
+      if (cacheValue) {
+        console.log("Serving from cache");
+        responseUtil._getSuccessResponse(JSON.parse(cacheValue), response);
+      } else {
+        console.log("Serving from MongoDB");
+        Ticket.find(query)
+          .skip(offset)
+          .limit(count)
+          .exec()
+          .then((tickets) => {
+            redisUtil.setCache(req.body.cacheKey, tickets); // Use req.body.cacheKey
+            return responseUtil._getSuccessResponse(tickets, response);
+          })
+          .catch((error) => responseUtil._getErrorResponse(error, response));
+      }
+    })
+    .catch((error) => responseUtil._getErrorResponse(error, response))
     .finally(() => responseUtil._sendReponse(res, response));
 };
 

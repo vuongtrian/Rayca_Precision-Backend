@@ -1,6 +1,7 @@
 const express = require("express");
 require("dotenv").config();
 require("./api/data/db");
+require("./api/data/redisUtil");
 const router = require("./api/routers");
 const { graphqlHTTP } = require("express-graphql");
 const schema = require("./api/controllers/ticketGraphType");
