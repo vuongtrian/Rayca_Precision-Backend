@@ -1,0 +1,390 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Rayca_Precision",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    },
+    {
+      "url": "http://localhost:3100"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Ticket Restful APIs"
+    },
+    {
+      "name": "Ticket GraphQL APIs"
+    },
+    {
+      "name": "User Restful APIs"
+    }
+  ],
+  "paths": {
+    "/api/tickets": {
+      "get": {
+        "tags": [
+          "Ticket Restful APIs"
+        ],
+        "summary": "Get All Tickets",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Ticket Restful APIs"
+        ],
+        "summary": "Create New Ticket",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "Mobile App Crash on Startup",
+                  "description": "The mobile app crashes immediately after startup for several users.",
+                  "status": "open",
+                  "priority": "high",
+                  "assignedTo": "650ab57bcf9b2f1bb847b3a5",
+                  "tags": [
+                    "mobile",
+                    "crash",
+                    "urgent"
+                  ],
+                  "createdAt": "2024-09-24T09:30:00Z",
+                  "updatedAt": "2024-09-24T09:30:00Z"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/66f0553ba44b16573f781592": {
+      "get": {
+        "tags": [
+          "Ticket Restful APIs"
+        ],
+        "summary": "Get One Ticket",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG5kb2UiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcyNzEyMjIxNCwiZXhwIjoxNzI3MTI1ODE0fQ.HeIk7tW_CxVusQtVT2kzj2sX4Fr1uZGVhsMyl9iieCM"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/66f0585cdeb6fa7fa018d290": {
+      "put": {
+        "tags": [
+          "Ticket Restful APIs"
+        ],
+        "summary": "Update Ticket",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "title": "Mobile App Crash on Startup",
+                  "description": "The mobile app crashes immediately after startup for several users.",
+                  "status": "open",
+                  "priority": "low",
+                  "assignedTo": "650ab57bcf9b2f1bb847b3a5",
+                  "tags": [
+                    "mobile",
+                    "crash",
+                    "urgent"
+                  ],
+                  "createdAt": "2024-09-24T09:30:00Z",
+                  "updatedAt": "2024-09-24T09:30:00Z"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Ticket Restful APIs"
+        ],
+        "summary": "Update Partial Ticket",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "status": "pending"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/tickets/66f0aa925300cab5d5d91286": {
+      "delete": {
+        "tags": [
+          "Ticket Restful APIs"
+        ],
+        "summary": "Delete Ticket",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRyaWFudnVvbmciLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3MjcxMjI1NzIsImV4cCI6MTcyNzEyNjE3Mn0.nUzqGQuFxy9i_FDvIojknzAOZI5n5lnWj2sIt-Hf0tk"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/graphql": {
+      "post": {
+        "tags": ["Ticket GraphQL APIs"],
+        "summary": "GraphQL API for CRUD operations on Tickets",
+        "description": "Send queries and mutations to manage tickets",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "GraphQL query or mutation"
+                  },
+                  "variables": {
+                    "type": "object",
+                    "description": "Optional variables for the GraphQL operation"
+                  }
+                },
+                "example": {
+                  "query": "{ tickets { id title description status priority } }"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "data": {
+                      "tickets": [
+                        {
+                          "id": "1",
+                          "title": "Example Ticket",
+                          "description": "Issue with login",
+                          "status": "open",
+                          "priority": "high"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "post": {
+        "tags": [
+          "User Restful APIs"
+        ],
+        "summary": "Create New User",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "name": "Trian Vuong",
+                  "username": "trianvuong",
+                  "password": "@test123",
+                  "roles": "admin",
+                  "email": "trian@test.com"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/users/login": {
+      "post": {
+        "tags": [
+          "User Restful APIs"
+        ],
+        "summary": "User Login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "username": "trianvuong",
+                  "password": "@test123"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/users/enableMFA": {
+      "post": {
+        "tags": [
+          "User Restful APIs"
+        ],
+        "summary": "User Enable MFA",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "id": "66f1892786c772511a8c2752"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRyaWFudnVvbmciLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3MjcxMDc3MDksImV4cCI6MTcyNzExMTMwOX0.M0LcfoGxcuIb55xSXnwVGe_Q0SFTFKWQnpOtpB5ZsNY"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/users/verifyMFA": {
+      "post": {
+        "tags": [
+          "User Restful APIs"
+        ],
+        "summary": "User Verify MFA_token",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "token": "466592"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRyaWFudnVvbmciLCJyb2xlcyI6WyJhZG1pbiJdLCJpYXQiOjE3MjcxMDc3MDksImV4cCI6MTcyNzExMTMwOX0.M0LcfoGxcuIb55xSXnwVGe_Q0SFTFKWQnpOtpB5ZsNY"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
