@@ -17,9 +17,6 @@
       "name": "Ticket Restful APIs"
     },
     {
-      "name": "Ticket GraphQL APIs"
-    },
-    {
       "name": "User Restful APIs"
     }
   ],
@@ -30,6 +27,16 @@
           "Ticket Restful APIs"
         ],
         "summary": "Get All Tickets",
+        "parameters": [
+          {
+            "name": "cacheKey",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "tickets"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -50,23 +57,33 @@
               "schema": {
                 "type": "object",
                 "example": {
-                  "title": "Mobile App Crash on Startup",
-                  "description": "The mobile app crashes immediately after startup for several users.",
+                  "title": "Login Page Unresponsive",
+                  "description": "Users report that the login page becomes unresponsive when trying to submit their credentials.",
                   "status": "open",
-                  "priority": "high",
+                  "priority": "medium",
                   "assignedTo": "650ab57bcf9b2f1bb847b3a5",
                   "tags": [
-                    "mobile",
-                    "crash",
-                    "urgent"
+                    "login",
+                    "frontend",
+                    "bug"
                   ],
-                  "createdAt": "2024-09-24T09:30:00Z",
-                  "updatedAt": "2024-09-24T09:30:00Z"
+                  "createdAt": "2024-09-23T10:15:00Z",
+                  "updatedAt": "2024-09-23T10:15:00Z"
                 }
               }
             }
           }
         },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRyaWFudnVvbmciLCJyb2xlcyI6WyJtYW5hZ2VyIl0sImlhdCI6MTcyNzI4MjQ5NiwiZXhwIjoxNzI3Mjg2MDk2fQ.tjyEJ-idXUXLGuQDWNWX49pAb1RobkZsp8evb7wB-N0"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -90,7 +107,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG5kb2UiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcyNzEyMjIxNCwiZXhwIjoxNzI3MTI1ODE0fQ.HeIk7tW_CxVusQtVT2kzj2sX4Fr1uZGVhsMyl9iieCM"
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG5kb2UiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcyNzI4MjI5MCwiZXhwIjoxNzI3Mjg1ODkwfQ.mTau0EElhogWrlLHU3wszf2dS5B_wMQ0ETEaFjhp3kE"
           }
         ],
         "responses": {
@@ -103,7 +120,7 @@
         }
       }
     },
-    "/api/tickets/66f0585cdeb6fa7fa018d290": {
+    "/api/tickets/66f43d4c7aff69bdf75c7d5d": {
       "put": {
         "tags": [
           "Ticket Restful APIs"
@@ -115,23 +132,33 @@
               "schema": {
                 "type": "object",
                 "example": {
-                  "title": "Mobile App Crash on Startup",
-                  "description": "The mobile app crashes immediately after startup for several users.",
+                  "title": "Login Page Unresponsive",
+                  "description": "Users report that the login page becomes unresponsive when trying to submit their credentials.",
                   "status": "open",
                   "priority": "low",
                   "assignedTo": "650ab57bcf9b2f1bb847b3a5",
                   "tags": [
-                    "mobile",
-                    "crash",
-                    "urgent"
+                    "login",
+                    "frontend",
+                    "bug"
                   ],
-                  "createdAt": "2024-09-24T09:30:00Z",
-                  "updatedAt": "2024-09-24T09:30:00Z"
+                  "createdAt": "2024-09-23T10:15:00Z",
+                  "updatedAt": "2024-09-23T10:15:00Z"
                 }
               }
             }
           }
         },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG5kb2UiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcyNzI4MjY1MSwiZXhwIjoxNzI3Mjg2MjUxfQ.8WCUkdPd-emEJ5hA5huArfOVRNOCcTXDv0id9ZHb2Bg"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -152,12 +179,22 @@
               "schema": {
                 "type": "object",
                 "example": {
-                  "status": "pending"
+                  "status": "closed"
                 }
               }
             }
           }
         },
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImpvaG5kb2UiLCJyb2xlcyI6WyJ1c2VyIl0sImlhdCI6MTcyNzI4MjY1MSwiZXhwIjoxNzI3Mjg2MjUxfQ.8WCUkdPd-emEJ5hA5huArfOVRNOCcTXDv0id9ZHb2Bg"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful response",
@@ -189,61 +226,6 @@
             "description": "Successful response",
             "content": {
               "application/json": {}
-            }
-          }
-        }
-      }
-    },
-    "/graphql": {
-      "post": {
-        "tags": ["Ticket GraphQL APIs"],
-        "summary": "GraphQL API for CRUD operations on Tickets",
-        "description": "Send queries and mutations to manage tickets",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string",
-                    "description": "GraphQL query or mutation"
-                  },
-                  "variables": {
-                    "type": "object",
-                    "description": "Optional variables for the GraphQL operation"
-                  }
-                },
-                "example": {
-                  "query": "{ tickets { id title description status priority } }"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "example": {
-                    "data": {
-                      "tickets": [
-                        {
-                          "id": "1",
-                          "title": "Example Ticket",
-                          "description": "Issue with login",
-                          "status": "open",
-                          "priority": "high"
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
             }
           }
         }

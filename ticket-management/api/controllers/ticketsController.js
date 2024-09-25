@@ -43,10 +43,10 @@ const getAll = async function (req, res) {
   }
   let response = responseUtil._initResponse();
 
-  const redisCached = await redisUtil.getCache(req.body.cacheKey);
+  const redisCached = await redisUtil.getCache(req.query.cacheKey);
   if (redisCached) {
     console.log("Get from Redis");
-    responseUtil._getSuccessResponse(redisCached, response);
+    responseUtil._getSuccessResponse(JSON.parse(redisCached), response);
     responseUtil._sendReponse(res, response);
   } else {
     console.log("Get from MongoDB");
@@ -55,7 +55,7 @@ const getAll = async function (req, res) {
       .limit(count)
       .exec()
       .then((tickets) => {
-        redisUtil.setCache(req.body.cacheKey, tickets);
+        redisUtil.setCache(req.query.cacheKey, tickets);
         responseUtil._getSuccessResponse(tickets, response);
       })
       .catch((err) => responseUtil._getErrorResponse(err, response))
