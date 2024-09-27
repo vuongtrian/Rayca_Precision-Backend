@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const callbackify = require("util").callbackify;
 const responseUtil = require("../util/responseUtil");
+const userResponseUtil = require("../util/userResponseUtil");
 
 const Notification = mongoose.model(process.env.NOTIFICATION_MODEL);
 
@@ -54,22 +55,38 @@ const getAll = function (req, res) {
     .finally(() => responseUtil._sendReponse(res, response));
 };
 
-const createOne = function (req, res) {
-  let newNotification = {
-    userId: req.body.userId,
-    ticketId: req.body.ticketId,
-    type: req.body.type,
-    message: req.body.message,
-  };
+const createOne = async function (req, res) {
+  try {
+    const userNotificationReferenceResponse =
+      await userResponseUtil._getUserNotificationReferenceById(req.userId);
 
-  let response = responseUtil._initResponse();
+    for (const type in userNotificationReferenceResponse) {
+      if (userNotificationReferenceResponse[type] === true) {
+        let newNotification = {
+          userId: req.userId,
+          ticketId: req.ticketId,
+          type: type,
+          message: req.message,
+        };
 
-  Notification.create(newNotification)
-    .then((newNotification) =>
-      responseUtil._getSuccessResponse(newNotification, response)
-    )
-    .catch((err) => responseUtil._getErrorResponse(err, response))
-    .finally(() => responseUtil._sendReponse(res, response));
+        let response = responseUtil._initResponse();
+
+        Notification.create(newNotification)
+          .then((newNotification) =>
+            responseUtil._getSuccessResponse(newNotification, response)
+          )
+          .catch((err) => responseUtil._getErrorResponse(err, response))
+          .finally(() => responseUtil._sendReponse(res, response));
+      }
+    }
+  } catch (error) {
+    console.error("Error in creating notification:", error);
+    return responseUtil._sendReponseWithStatusAndMessage(
+      res,
+      500,
+      "Error in fetching user data"
+    );
+  }
 };
 
 const getOne = function (req, res) {

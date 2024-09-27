@@ -1,12 +1,11 @@
 const amqp = require("amqplib");
+const notificationController = require("../controllers/notificationController");
 
-async function receiveMessage() {
+const receiveMessage = async function (queue) {
   try {
     // Create a connection to the RabbitMQ server
     const connection = await amqp.connect("amqp://localhost:5672");
     const channel = await connection.createChannel();
-
-    const queue = "ticket_notification";
 
     // Ensure the queue exists
     await channel.assertQueue(queue, {
@@ -23,7 +22,21 @@ async function receiveMessage() {
           // Parse the message content from JSON string back into an object
           const messageContent = JSON.parse(msg.content.toString());
 
-          console.log(`[x] Received message:`, messageContent);
+          // Mock `req` and `res` objects to pass to the controller
+          const req = {
+            userId: messageContent.userId,
+            ticketId: messageContent.ticketId,
+            message: messageContent.content,
+          };
+          const res = {
+            status: (code) => ({
+              json: (responseData) => console.log(`Response:`, responseData),
+            }),
+          };
+
+          // Call the notification controller with the mock request and response
+          notificationController.createOne(req, res);
+
           // Acknowledge the message
           channel.ack(msg);
         }
@@ -35,6 +48,7 @@ async function receiveMessage() {
   } catch (error) {
     console.error("Error in receiving message:", error);
   }
-}
+};
 
-receiveMessage();
+// Start consuming messages from the queue
+receiveMessage("ticket_notification");

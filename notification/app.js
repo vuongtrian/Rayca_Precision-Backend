@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 require("./api/data/db");
 require("./api/util/rabbitmq-consumer");
+require("./api/util/userResponseUtil");
 const router = require("./api/routers");
 
 const app = express();
