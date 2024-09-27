@@ -2,6 +2,7 @@ const express = require("express");
 require("dotenv").config();
 require("./api/data/db");
 require("./api/data/redisUtil");
+require("./api/util/rabbitmq-producer");
 const swaggerUi = require("swagger-ui-express");
 const fs = require("fs");
 const path = require("path");

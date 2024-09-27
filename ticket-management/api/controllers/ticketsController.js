@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const callbackify = require("util").callbackify;
 const responseUtil = require("../util/responseUtil");
 const redisUtil = require("../data/redisUtil");
+const rabbitmqUtil = require("../util/rabbitmq-producer");
 const Ticket = mongoose.model(process.env.TICKET_MODEL);
 
 const getAll = async function (req, res) {
@@ -63,7 +64,7 @@ const getAll = async function (req, res) {
   }
 };
 
-const createOne = function (req, res) {
+const createOne = async function (req, res) {
   let newTicket = {
     title: req.body.title,
     description: req.body.description,
@@ -75,10 +76,26 @@ const createOne = function (req, res) {
 
   let response = responseUtil._initResponse();
 
-  Ticket.create(newTicket)
-    .then((newTicket) => responseUtil._getSuccessResponse(newTicket, response))
-    .catch((err) => responseUtil._getErrorResponse(err, response))
-    .finally(() => responseUtil._sendReponse(res, response));
+  try {
+    // Create the new ticket
+    const createdTicket = await Ticket.create(newTicket);
+
+    // Send the message to RabbitMQ after ticket creation
+    // await rabbitmqUtil._sendMessage({
+    //   event: "TicketCreated",
+    //   ticket: createdTicket,
+    // });
+    await rabbitmqUtil._sendMessage();
+
+    // Return success response
+    responseUtil._getSuccessResponse(createdTicket, response);
+  } catch (err) {
+    // Handle errors
+    responseUtil._getErrorResponse(err, response);
+  } finally {
+    // Send the response back to the client
+    responseUtil._sendReponse(res, response);
+  }
 };
 
 const deleteOne = function (req, res) {
