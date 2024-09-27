@@ -14,8 +14,10 @@ const addOne = function (req, res) {
     name: req.body.name,
     username: req.body.username,
     password: req.body.password,
-    roles: req.body.roles,
     email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    roles: req.body.roles,
+    notificationPreferences: req.body.notificationPreferences,
   });
   if (_validateRequest(req)) {
     responseUtil._sendReponseWithStatusAndMessage(
@@ -63,6 +65,23 @@ const login = function (req, res) {
     )
     .then((verifiedUser) => _generateToken(verifiedUser))
     .then((token) => responseUtil._getTokenSuccessResponse(token, response))
+    .catch((err) => responseUtil._getErrorResponse(err, response))
+    .finally(() => responseUtil._sendReponse(res, response));
+};
+
+const getOne = function (req, res) {
+  let userId = req.params.userId;
+  let response = responseUtil._initResponse();
+  User.findById(userId)
+    .exec()
+    .then((user) =>
+      responseUtil._checkExistedData(
+        user,
+        response,
+        process.env.ERROR_USER_ID_NOT_FOUNT_MESSAGE
+      )
+    )
+    .then((foundUser) => responseUtil._getSuccessResponse(foundUser, response))
     .catch((err) => responseUtil._getErrorResponse(err, response))
     .finally(() => responseUtil._sendReponse(res, response));
 };
@@ -135,6 +154,7 @@ const _generateQrCode = function (secret) {
 
 module.exports = {
   register: addOne,
+  getOne,
   login,
   enableMFA: enableMFA,
   testAuthorization,
