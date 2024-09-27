@@ -85,7 +85,13 @@ const createOne = async function (req, res) {
     //   event: "TicketCreated",
     //   ticket: createdTicket,
     // });
-    await rabbitmqUtil._sendMessage();
+    const queue = "ticket_notification";
+    const message = {
+      ticketId: createdTicket._id,
+      userId: createdTicket.assignedTo,
+      content: "A new ticket is created",
+    };
+    await rabbitmqUtil._sendMessage(queue, message);
 
     // Return success response
     responseUtil._getSuccessResponse(createdTicket, response);
@@ -136,9 +142,9 @@ const getOne = function (req, res) {
     .finally(() => responseUtil._sendReponse(res, response));
 };
 
-const updateOne = function (req, res) {
+const updateOne = async function (req, res) {
   let ticketId = req.params.ticketId;
-  _findAndUpdateTicket(ticketId, req, res, _fillFullUpdateTicket);
+  await _findAndUpdateTicket(ticketId, req, res, _fillFullUpdateTicket);
 };
 
 const updatePartialOne = function (req, res) {
@@ -182,24 +188,80 @@ const _fillFullUpdateTicket = function (ticket, req) {
   });
 };
 
-const _findAndUpdateTicket = function (ticketId, req, res, fillUpdateTicket) {
+// const _findAndUpdateTicket = function (ticketId, req, res, fillUpdateTicket) {
+//   let response = responseUtil._initResponse();
+//   Ticket.findById(ticketId)
+//     .exec()
+//     .then((ticket) =>
+//       responseUtil._checkExistedData(
+//         ticket,
+//         response,
+//         process.env.ERROR_TICKET_ID_NOT_FOUNT_MESSAGE
+//       )
+//     )
+//     .then((foundTicket) => fillUpdateTicket(foundTicket, req))
+//     .then((filledTicket) => _updateOneTicket(filledTicket))
+//     .then(async (updatedTicket) => {
+//       responseUtil._getSuccessResponse(updatedTicket, response);
+//       const queue = "ticket_notification";
+//       const message = {
+//         ticketId: ticketId,
+//         userId: updatedTicket.assignedTo,
+//         content: `Ticket ${ticketId} has been updated`,
+//       };
+//       await rabbitmqUtil._sendMessage(queue, message);
+//       console.log("A message is sent");
+//       return updatedTicket;
+//     })
+//     .catch((err) => responseUtil._getErrorResponse(err, response))
+//     .finally(() => responseUtil._sendReponse(res, response));
+// };
+
+const _findAndUpdateTicket = async function (
+  ticketId,
+  req,
+  res,
+  fillUpdateTicket
+) {
   let response = responseUtil._initResponse();
-  Ticket.findById(ticketId)
-    .exec()
-    .then((ticket) =>
-      responseUtil._checkExistedData(
-        ticket,
-        response,
-        process.env.ERROR_TICKET_ID_NOT_FOUNT_MESSAGE
-      )
-    )
-    .then((foundTicket) => fillUpdateTicket(foundTicket, req))
-    .then((filledTicket) => _updateOneTicket(filledTicket))
-    .then((updatedTicket) =>
-      responseUtil._getSuccessResponse(updatedTicket, response)
-    )
-    .catch((err) => responseUtil._getErrorResponse(err, response))
-    .finally(() => responseUtil._sendReponse(res, response));
+
+  try {
+    // Find the ticket by ID
+    let ticket = await Ticket.findById(ticketId).exec();
+    let foundTicket = responseUtil._checkExistedData(
+      ticket,
+      response,
+      process.env.ERROR_TICKET_ID_NOT_FOUNT_MESSAGE
+    );
+
+    if (!foundTicket) {
+      return responseUtil._sendReponse(res, response); // If ticket not found, exit early
+    }
+
+    // Fill ticket data with update
+    let filledTicket = await fillUpdateTicket(foundTicket, req);
+
+    // Update the ticket in the database
+    let updatedTicket = await _updateOneTicket(filledTicket);
+
+    // Send a success response
+    responseUtil._getSuccessResponse(updatedTicket, response);
+
+    // Send RabbitMQ message after the ticket is updated
+    const queue = "ticket_notification";
+    const message = {
+      ticketId: ticketId,
+      userId: updatedTicket.assignedTo,
+      content: `Ticket ${ticketId} has been updated`,
+    };
+
+    // Send message to RabbitMQ
+    await rabbitmqUtil._sendMessage(queue, message);
+  } catch (err) {
+    responseUtil._getErrorResponse(err, response);
+  } finally {
+    responseUtil._sendReponse(res, response);
+  }
 };
 
 const _updateOneTicket = function (ticket) {

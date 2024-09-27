@@ -1,17 +1,17 @@
 const amqp = require("amqplib");
 
-const _sendMessage = async function sendMessage() {
+const _sendMessage = async function sendMessage(queue, message) {
   try {
     // Create a connection to the RabbitMQ server
     const connection = await amqp.connect("amqp://localhost:5672");
     const channel = await connection.createChannel();
 
-    const queue = "ticket_notification";
-    const message = {
-      ticketId: 123,
-      userId: 442,
-      content: "A new ticket was created",
-    };
+    // const queue = "ticket_notification";
+    // const message = {
+    //   ticketId: 123,
+    //   userId: 442,
+    //   content: "A new ticket was created",
+    // };
 
     // Ensure the queue exists
     await channel.assertQueue(queue, {
@@ -26,7 +26,7 @@ const _sendMessage = async function sendMessage() {
       persistent: true,
     });
 
-    console.log(`[x] Sent '${message}'`);
+    // console.log(`[x] Sent '${message}'`);
 
     // Close the connection
     setTimeout(() => {
