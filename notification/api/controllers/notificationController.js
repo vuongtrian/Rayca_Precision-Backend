@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const callbackify = require("util").callbackify;
 const responseUtil = require("../util/responseUtil");
 const userResponseUtil = require("../util/userResponseUtil");
+const sendGridUtil = require("../util/sendGridUtil");
 
 const Notification = mongoose.model(process.env.NOTIFICATION_MODEL);
 
@@ -71,12 +72,31 @@ const createOne = async function (req, res) {
 
         let response = responseUtil._initResponse();
 
-        Notification.create(newNotification)
+        await Notification.create(newNotification)
           .then((newNotification) =>
             responseUtil._getSuccessResponse(newNotification, response)
           )
           .catch((err) => responseUtil._getErrorResponse(err, response))
           .finally(() => responseUtil._sendReponse(res, response));
+
+        // Check if the notification type is email => send email to user
+        if (type === "email") {
+          const subject = `New Ticket Created - ID: ${req.ticketId}`;
+          const text = `A new ticket with ID #${req.ticketId} has been created.`;
+          const html = `<p>A new ticket with ID <strong>${req.ticketId}</strong> has been created.</p>`;
+
+          try {
+            await sendGridUtil.sendEmail(
+              "vuongtrian116@gmail.com",
+              subject,
+              text,
+              html
+            );
+            console.log("Email sent successfully.");
+          } catch (emailError) {
+            console.error("Error sending email notification:", emailError);
+          }
+        }
       }
     }
   } catch (error) {
