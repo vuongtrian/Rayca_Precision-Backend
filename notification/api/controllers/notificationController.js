@@ -80,6 +80,8 @@ const createOne = async function (req, res) {
           .finally(() => responseUtil._sendReponse(res, response));
 
         // Check if the notification type is email => send email to user
+
+        /**
         if (type === "email") {
           const subject = `New Ticket Created - ID: ${req.ticketId}`;
           const text = `A new ticket with ID #${req.ticketId} has been created.`;
@@ -97,6 +99,7 @@ const createOne = async function (req, res) {
             console.error("Error sending email notification:", emailError);
           }
         }
+         */
       }
     }
   } catch (error) {
