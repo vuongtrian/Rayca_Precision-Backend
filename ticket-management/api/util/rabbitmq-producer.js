@@ -26,7 +26,7 @@ const _sendMessage = async function sendMessage(queue, message) {
       persistent: true,
     });
 
-    // console.log(`[x] Sent '${message}'`);
+    console.log(`[x] Sent '${messageBuffer}'`);
 
     // Close the connection
     setTimeout(() => {

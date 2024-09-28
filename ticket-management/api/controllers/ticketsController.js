@@ -68,8 +68,8 @@ const createOne = async function (req, res) {
   let newTicket = {
     title: req.body.title,
     description: req.body.description,
-    status: req.body.status || "open",
-    priority: req.body.priority || "medium",
+    status: req.body.status,
+    priority: req.body.priority,
     assignedTo: req.body.assignedTo,
     tags: req.body.tags || [],
   };
@@ -85,13 +85,13 @@ const createOne = async function (req, res) {
     //   event: "TicketCreated",
     //   ticket: createdTicket,
     // });
-    const queue = "ticket_notification";
-    const message = {
+    const notificationQueue = "ticket_notification";
+    const messageToNotification = {
       ticketId: createdTicket._id,
       userId: createdTicket.assignedTo,
       content: "A new ticket is created",
     };
-    await rabbitmqUtil._sendMessage(queue, message);
+    await rabbitmqUtil._sendMessage(notificationQueue, messageToNotification);
 
     // Return success response
     responseUtil._getSuccessResponse(createdTicket, response);
@@ -147,7 +147,7 @@ const updateOne = async function (req, res) {
   await _findAndUpdateTicket(ticketId, req, res, _fillFullUpdateTicket);
 };
 
-const updatePartialOne = function (req, res) {
+const updatePartialOne = async function (req, res) {
   let ticketId = req.params.ticketId;
   _findAndUpdateTicket(ticketId, req, res, _fillPartialUpdateTicket);
 };
@@ -171,6 +171,7 @@ const _fillPartialUpdateTicket = function (ticket, req) {
   if (req.body.tags) {
     ticket.tags = req.body.tags;
   }
+  ticket.updatedAt = Date.now();
   return new Promise((resolve) => {
     resolve(ticket);
   });
@@ -183,6 +184,7 @@ const _fillFullUpdateTicket = function (ticket, req) {
   ticket.priority = req.body.priority;
   ticket.assignedTo = req.body.assignedTo;
   ticket.tags = req.body.tags;
+  ticket.updatedAt = Date.now();
   return new Promise((resolve) => {
     resolve(ticket);
   });
@@ -228,15 +230,13 @@ const _findAndUpdateTicket = async function (
   try {
     // Find the ticket by ID
     let ticket = await Ticket.findById(ticketId).exec();
-    let foundTicket = responseUtil._checkExistedData(
+
+    // Use `await` to handle _checkExistedData promise
+    let foundTicket = await responseUtil._checkExistedData(
       ticket,
       response,
-      process.env.ERROR_TICKET_ID_NOT_FOUNT_MESSAGE
+      process.env.ERROR_TICKET_ID_NOT_FOUND_MESSAGE
     );
-
-    if (!foundTicket) {
-      return responseUtil._sendReponse(res, response); // If ticket not found, exit early
-    }
 
     // Fill ticket data with update
     let filledTicket = await fillUpdateTicket(foundTicket, req);
@@ -247,16 +247,28 @@ const _findAndUpdateTicket = async function (
     // Send a success response
     responseUtil._getSuccessResponse(updatedTicket, response);
 
-    // Send RabbitMQ message after the ticket is updated
-    const queue = "ticket_notification";
-    const message = {
+    // Send message to RabbitMQ_notification after the ticket is updated
+    const notificationQueue = "ticket_notification";
+    const messageToNotification = {
       ticketId: ticketId,
       userId: updatedTicket.assignedTo,
       content: `Ticket ${ticketId} has been updated`,
     };
+    await rabbitmqUtil._sendMessage(notificationQueue, messageToNotification);
 
-    // Send message to RabbitMQ
-    await rabbitmqUtil._sendMessage(queue, message);
+    // If ticket status is closed, send message to RabbitMQ_analytic
+    if (updatedTicket.status === "closed") {
+      const analyticQueue = "ticket_analytic";
+      const messageToAnalytic = {
+        ticketId: ticketId,
+        userId: updatedTicket.assignedTo,
+        resolutionTime: await calResolutionTime(
+          updatedTicket.createdAt,
+          Date.now() // Corrected the usage of Date.now()
+        ),
+      };
+      await rabbitmqUtil._sendMessage(analyticQueue, messageToAnalytic);
+    }
   } catch (err) {
     responseUtil._getErrorResponse(err, response);
   } finally {
@@ -275,6 +287,32 @@ const getTotal = function (req, res) {
     .then((total) => responseUtil._getSuccessResponse(total, response))
     .catch((err) => responseUtil._getErrorResponse(err, response))
     .finally(() => responseUtil._sendReponse(res, response));
+};
+
+// Util function to calculate resolution time
+const calResolutionTime = async function (createdDate, finishedDate) {
+  // Convert the dates to Date objects (if they are not already)
+  const created = new Date(createdDate);
+  const finished = new Date(finishedDate);
+
+  // Calculate the difference in milliseconds
+  const differenceInMs = finished - created;
+
+  if (differenceInMs < 0) {
+    throw new Error("Finished date must be later than the created date");
+  }
+
+  // Convert the difference to hours, minutes, and seconds
+  const seconds = Math.floor((differenceInMs / 1000) % 60);
+  const minutes = Math.floor((differenceInMs / (1000 * 60)) % 60);
+  const hours = Math.floor(differenceInMs / (1000 * 60 * 60));
+
+  // Return an object or a formatted string
+  return {
+    hours: hours,
+    minutes: minutes,
+    seconds: seconds,
+  };
 };
 
 module.exports = {
