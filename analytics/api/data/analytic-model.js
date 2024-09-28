@@ -12,8 +12,21 @@ const analyticsSchema = new mongoose.Schema({
     required: true,
   },
   resolutionTime: {
-    type: Number, // Time in hours or minutes it took to resolve the ticket
-    required: true,
+    hours: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    minutes: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    seconds: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
   customerSatisfaction: {
     type: Number, // Rating from 1-5, for example

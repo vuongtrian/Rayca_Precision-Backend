@@ -7,7 +7,7 @@ router.route(process.env.SPLASH).get(analyticController.getAll);
 router
   .route(process.env.ANALYTIC_ID_ROUTE)
   .get(analyticController.getOne)
-  .put(analyticController.updateCustomerSatisfaction);
+  .patch(analyticController.updateCustomerSatisfaction);
 
 router.route(process.env.PAGING_ROUTE).get(analyticController.getTotal);
 

@@ -51,4 +51,4 @@ const receiveMessage = async function (queue) {
 };
 
 // Start consuming messages from the queue
-receiveMessage("ticket_anylytic");
+receiveMessage("ticket_analytic");

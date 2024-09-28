@@ -74,13 +74,13 @@ const createOne = function (req, res) {
 const getOne = function (req, res) {
   let analyticId = req.params.analyticId;
   let response = responseUtil._initResponse();
-  Movie.findById(analyticId)
+  Analytic.findById(analyticId)
     .exec()
     .then((analytic) =>
       responseUtil._checkExistedData(
         analytic,
         response,
-        process.env.ERROR_ANALYTIC_ID_NOT_FOUNT_MESSAGE
+        process.env.ERROR_ANALYTIC_ID_NOT_FOUND_MESSAGE
       )
     )
     .then((foundAnalytic) =>
@@ -90,9 +90,14 @@ const getOne = function (req, res) {
     .finally(() => responseUtil._sendReponse(res, response));
 };
 
-const updateCustomerSatisfaction = function (req, res) {
+const updateCustomerSatisfaction = async function (req, res) {
   let analyticId = req.params.analyticId;
-  _findAndUpdateAnalytic(analyticId, req, res, _fillPartialUpdateAnalytic);
+  await _findAndUpdateAnalytic(
+    analyticId,
+    req,
+    res,
+    _fillPartialUpdateAnalytic
+  );
 };
 
 const _fillPartialUpdateAnalytic = function (analytic, req) {
@@ -100,33 +105,43 @@ const _fillPartialUpdateAnalytic = function (analytic, req) {
     analytic.customerSatisfaction = req.body.customerSatisfaction;
   }
   return new Promise((resolve) => {
-    resolve(movie);
+    resolve(analytic);
   });
 };
 
-const _findAndUpdateAnalytic = function (
+const _findAndUpdateAnalytic = async function (
   analyticId,
   req,
   res,
   fillUpdateAnalytic
 ) {
   let response = responseUtil._initResponse();
-  Analytic.findById(analyticId)
-    .exec()
-    .then((analytic) =>
-      responseUtil._checkExistedData(
-        analytic,
-        response,
-        process.env.ERROR_ANALYTIC_ID_NOT_FOUNT_MESSAGE
-      )
-    )
-    .then((foundAnalytic) => fillUpdateAnalytic(foundAnalytic, req))
-    .then((filledAnalytic) => _updateOneAnalytic(filledAnalytic))
-    .then((updatedAnalytic) =>
-      responseUtil._getSuccessResponse(updatedAnalytic, response)
-    )
-    .catch((err) => responseUtil._getErrorResponse(err, response))
-    .finally(() => responseUtil._sendReponse(res, response));
+
+  try {
+    // Find the analytic ID
+    let analytic = await Analytic.findById(analyticId).exec();
+
+    // Use `await` to handle _checkExistedData promise
+    let foundAnalytic = await responseUtil._checkExistedData(
+      analytic,
+      response,
+      process.env.ERROR_ANALYTIC_ID_NOT_FOUND_MESSAGE
+    );
+
+    // Fill ticket data with update
+    let filledAnalytic = await fillUpdateAnalytic(foundAnalytic, req);
+    console.log(filledAnalytic);
+    // Update the analytic in the database
+    let updatedAnalytic = await _updateOneAnalytic(filledAnalytic);
+    console.log(updatedAnalytic);
+
+    // Send a success response
+    responseUtil._getSuccessResponse(updatedAnalytic, response);
+  } catch (err) {
+    responseUtil._getErrorResponse(err, response);
+  } finally {
+    responseUtil._sendReponse(res, response);
+  }
 };
 
 const _updateOneAnalytic = function (analytic) {
