@@ -1,11 +1,11 @@
 const axios = require("axios");
 
-const _getUserNotificationReferenceById = async function (userId) {
+const _getUserById = async function (userId) {
   try {
     const userResponse = await axios.get(
       `http://localhost:3100/api/users/${userId}`
     );
-    return userResponse.data.notificationPreferences;
+    return userResponse.data;
   } catch (error) {
     console.error(`Error fetching user with ID ${userId}:`, error.message);
     throw new Error("User not found");
@@ -13,5 +13,5 @@ const _getUserNotificationReferenceById = async function (userId) {
 };
 
 module.exports = {
-  _getUserNotificationReferenceById,
+  _getUserById,
 };

@@ -1,5 +1,3 @@
-// const bcrypt = require("bcrypt");
-
 const _getDeleteSuccessResponse = function (message, res) {
   res.status = parseInt(process.env.HTTP_DELETE_STATUS_CODE);
   res.message = message;
@@ -53,18 +51,6 @@ const _checkExistedData = function (data, response, message) {
   });
 };
 
-// const _checkExistedActor = function (data, userId, response, message) {
-//   const user = data.actors.id(userId);
-//   return new Promise((resolve, reject) => {
-//     if (user) {
-//       resolve(data);
-//     } else {
-//       response.status = parseInt(process.env.HTTP_NOT_FOUND_STATUS_CODE);
-//       reject(message);
-//     }
-//   });
-// };
-
 const _sendReponse = function (res, response) {
   res.status(response.status).json(response.message);
 };
@@ -82,7 +68,6 @@ module.exports = {
   _getSuccesAndNotFoundReponse,
   _checkExistedData,
   _sendReponse,
-  // _checkExistedActor,
   _sendReponseWithStatusAndMessage,
   _getForbiddenErrorResponse,
 };

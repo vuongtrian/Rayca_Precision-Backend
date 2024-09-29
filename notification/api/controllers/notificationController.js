@@ -58,8 +58,9 @@ const getAll = function (req, res) {
 
 const createOne = async function (req, res) {
   try {
+    const userResponse = await userResponseUtil._getUserById(req.userId);
     const userNotificationReferenceResponse =
-      await userResponseUtil._getUserNotificationReferenceById(req.userId);
+      userResponse.notificationPreferences;
 
     for (const type in userNotificationReferenceResponse) {
       if (userNotificationReferenceResponse[type] === true) {
@@ -80,26 +81,27 @@ const createOne = async function (req, res) {
           .finally(() => responseUtil._sendReponse(res, response));
 
         // Check if the notification type is email => send email to user
-
         /**
         if (type === "email") {
-          const subject = `New Ticket Created - ID: ${req.ticketId}`;
-          const text = `A new ticket with ID #${req.ticketId} has been created.`;
-          const html = `<p>A new ticket with ID <strong>${req.ticketId}</strong> has been created.</p>`;
+          const subject = `${req.message}`;
+          const text = `The ticket ID #${req.ticketId} is assigned to you.`;
+          const html = `<p>You can find the ticket ID <strong>${req.ticketId}</strong> details in Ticket Management system.</p>`;
 
           try {
             await sendGridUtil.sendEmail(
-              "vuongtrian116@gmail.com",
+              `${userResponse.email}`,
               subject,
               text,
               html
             );
-            console.log("Email sent successfully.");
+            console.log(
+              `Email sent successfully to ${userResponse.name} via email ${userResponse.email}.`
+            );
           } catch (emailError) {
             console.error("Error sending email notification:", emailError);
           }
         }
-         */
+           */
       }
     }
   } catch (error) {
