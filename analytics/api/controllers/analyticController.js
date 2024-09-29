@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ObjectId } = require("mongoose").Types;
 const callbackify = require("util").callbackify;
 const responseUtil = require("../util/responseUtil");
 
@@ -157,10 +158,62 @@ const getTotal = function (req, res) {
     .finally(() => responseUtil._sendReponse(res, response));
 };
 
+const getAnalyticsByUserId = async function (req, res) {
+  const userId = new ObjectId(req.params.userId);
+
+  try {
+    const result = await Analytic.aggregate([
+      // Match documents by userId
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId), // Ensure userId is cast as ObjectId
+        },
+      },
+      // Group by userId and calculate the total tickets and average resolution time
+      {
+        $group: {
+          _id: "$userId",
+          totalTicketsResolved: { $sum: 1 },
+          avgHours: { $avg: "$resolutionTime.hours" },
+          avgMinutes: { $avg: "$resolutionTime.minutes" },
+          avgSeconds: { $avg: "$resolutionTime.seconds" },
+          avgCustomerSatisfaction: { $avg: "$customerSatisfaction" },
+        },
+      },
+      // Project the final result (optional)
+      {
+        $project: {
+          _id: 0, // Hide the _id field
+          userId: "$_id",
+          totalTicketsResolved: 1,
+          avgResolutionTime: {
+            hours: "$avgHours",
+            minutes: "$avgMinutes",
+            seconds: "$avgSeconds",
+          },
+          avgCustomerSatisfaction: "$avgCustomerSatisfaction",
+        },
+      },
+    ]);
+
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No analytics found for this user." });
+    }
+
+    return res.status(200).json(result[0]);
+  } catch (err) {
+    console.error("Error in fetching analytics by userId:", err);
+    return res.status(500).json({ message: "Error in fetching analytics" });
+  }
+};
+
 module.exports = {
   getAll,
   getOne,
   createOne,
   updateCustomerSatisfaction,
   getTotal,
+  getAnalyticsByUserId,
 };
