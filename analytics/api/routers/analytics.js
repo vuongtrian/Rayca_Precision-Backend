@@ -5,11 +5,13 @@ const analyticController = require("../controllers/analyticController");
 router.route(process.env.SPLASH).get(analyticController.getAll);
 
 router
-  .route("/:analyticId")
+  .route(process.env.ANALYTIC_ID_ROUTE)
   .get(analyticController.getOne)
   .patch(analyticController.updateCustomerSatisfaction);
 
-router.route("/user/:userId").get(analyticController.getAnalyticsByUserId);
+router
+  .route(process.env.GET_ANALYTIC_BY_USER_ID_ROUTE)
+  .get(analyticController.getAnalyticsByUserId);
 
 router.route(process.env.PAGING_ROUTE).get(analyticController.getTotal);
 

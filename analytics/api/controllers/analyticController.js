@@ -166,7 +166,7 @@ const getAnalyticsByUserId = async function (req, res) {
       // Match documents by userId
       {
         $match: {
-          userId: new mongoose.Types.ObjectId(userId), // Ensure userId is cast as ObjectId
+          userId: new mongoose.Types.ObjectId(userId),
         },
       },
       // Group by userId and calculate the total tickets and average resolution time
@@ -180,10 +180,10 @@ const getAnalyticsByUserId = async function (req, res) {
           avgCustomerSatisfaction: { $avg: "$customerSatisfaction" },
         },
       },
-      // Project the final result (optional)
+
       {
         $project: {
-          _id: 0, // Hide the _id field
+          _id: 0,
           userId: "$_id",
           totalTicketsResolved: 1,
           avgResolutionTime: {

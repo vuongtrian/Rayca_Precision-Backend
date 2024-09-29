@@ -35,16 +35,6 @@ const analyticsSchema = new mongoose.Schema({
     default: 0,
   },
 
-  // performanceMetrics: {
-  //   ticketsResolved: {
-  //     type: Number, // Total tickets resolved by agent
-  //     default: 0,
-  //   },
-  //   averageResolutionTime: {
-  //     type: Number, // Average time in hours or minutes
-  //     default: 0,
-  //   },
-  // },
   createdAt: {
     type: Date,
     default: Date.now,
