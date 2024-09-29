@@ -17,7 +17,6 @@ const authenticationController = {
             forbiddenResponse.message
           ); // Invalid or expired token
         }
-        // console.log(user);
         req.user = user; // Attach the decoded token to the request object
         next();
       });

@@ -6,13 +6,6 @@ const _sendMessage = async function sendMessage(queue, message) {
     const connection = await amqp.connect("amqp://localhost:5672");
     const channel = await connection.createChannel();
 
-    // const queue = "ticket_notification";
-    // const message = {
-    //   ticketId: 123,
-    //   userId: 442,
-    //   content: "A new ticket was created",
-    // };
-
     // Ensure the queue exists
     await channel.assertQueue(queue, {
       durable: true,

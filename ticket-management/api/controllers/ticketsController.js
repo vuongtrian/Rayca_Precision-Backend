@@ -80,16 +80,12 @@ const createOne = async function (req, res) {
     // Create the new ticket
     const createdTicket = await Ticket.create(newTicket);
 
-    // Send the message to RabbitMQ after ticket creation
-    // await rabbitmqUtil._sendMessage({
-    //   event: "TicketCreated",
-    //   ticket: createdTicket,
-    // });
+    // Send message to Rabbitmq
     const notificationQueue = "ticket_notification";
     const messageToNotification = {
       ticketId: createdTicket._id,
       userId: createdTicket.assignedTo,
-      content: "A new ticket is created",
+      content: `A new ticket is created - ID ${createdTicket._id}`,
     };
     await rabbitmqUtil._sendMessage(notificationQueue, messageToNotification);
 
@@ -190,35 +186,6 @@ const _fillFullUpdateTicket = function (ticket, req) {
   });
 };
 
-// const _findAndUpdateTicket = function (ticketId, req, res, fillUpdateTicket) {
-//   let response = responseUtil._initResponse();
-//   Ticket.findById(ticketId)
-//     .exec()
-//     .then((ticket) =>
-//       responseUtil._checkExistedData(
-//         ticket,
-//         response,
-//         process.env.ERROR_TICKET_ID_NOT_FOUNT_MESSAGE
-//       )
-//     )
-//     .then((foundTicket) => fillUpdateTicket(foundTicket, req))
-//     .then((filledTicket) => _updateOneTicket(filledTicket))
-//     .then(async (updatedTicket) => {
-//       responseUtil._getSuccessResponse(updatedTicket, response);
-//       const queue = "ticket_notification";
-//       const message = {
-//         ticketId: ticketId,
-//         userId: updatedTicket.assignedTo,
-//         content: `Ticket ${ticketId} has been updated`,
-//       };
-//       await rabbitmqUtil._sendMessage(queue, message);
-//       console.log("A message is sent");
-//       return updatedTicket;
-//     })
-//     .catch((err) => responseUtil._getErrorResponse(err, response))
-//     .finally(() => responseUtil._sendReponse(res, response));
-// };
-
 const _findAndUpdateTicket = async function (
   ticketId,
   req,
@@ -264,7 +231,7 @@ const _findAndUpdateTicket = async function (
         userId: updatedTicket.assignedTo,
         resolutionTime: await calResolutionTime(
           updatedTicket.createdAt,
-          Date.now() // Corrected the usage of Date.now()
+          Date.now()
         ),
       };
       await rabbitmqUtil._sendMessage(analyticQueue, messageToAnalytic);
@@ -291,7 +258,6 @@ const getTotal = function (req, res) {
 
 // Util function to calculate resolution time
 const calResolutionTime = async function (createdDate, finishedDate) {
-  // Convert the dates to Date objects (if they are not already)
   const created = new Date(createdDate);
   const finished = new Date(finishedDate);
 
